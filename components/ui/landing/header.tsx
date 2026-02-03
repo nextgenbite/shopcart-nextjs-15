@@ -1,16 +1,22 @@
 import  Container from "./container";
-import Logo from "../logo";
+import Logo from "./logo";
 import HeaderMenu from "./headerMenu";
 import Searchbar from "./Searchbar";
 import CartIcon from "./CartIconBtn";
 import FavoriteBtn from "./FavoriteBtn";
+import LoginBtn  from "./LoginBtn";
+import MobileMenu from "./MobileMenu";
 
 const Header = () => {
   return (
     <header className="bg-white shadow-sm py-5">
-    <Container className="flex items-center justify-between bg-amber-50">
-          {/* logo */}
+    <Container className="flex items-center justify-between text-lightColor">
+        <div className="w-auto md:w-1/3 flex justify-start items-center gap-2.5 md:gap-0">
+          {/* {mobile menue btn} */}
+          <MobileMenu />
+            {/* logo */}
           <Logo />
+        </div>
         {/* menu */}
         <HeaderMenu />
         {/* action buttons */}
@@ -18,6 +24,7 @@ const Header = () => {
          <Searchbar />
         <CartIcon />
         <FavoriteBtn />
+        <LoginBtn />
        </div>
     </Container>
     </header>
