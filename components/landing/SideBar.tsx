@@ -25,7 +25,7 @@ const SideBar: FC<SideBarProps> = ({ isOpen, onClose }) => {
       >
         <div className="flex items-center justify-between gap-5">
           <Logo className="text-white" spanDesign="group-hover:text-white" />
-          <button type="button"
+          <button title="close" type="button"
             onClick={onClose}
             className="hover:text-shop_light_green hoverEffect"
           >
