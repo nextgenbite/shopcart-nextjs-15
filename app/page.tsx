@@ -1,8 +1,13 @@
+import Container from "@/components/landing/container";
+import Hero from "@/components/landing/Hero";
+
 const Home = () => {
   return (
-    <main className="min-h-screen flex items-center justify-center">
-      Home Page
-    </main>
+  <div>
+    <Container>
+      <Hero/>
+    </Container>
+  </div>
   );
 };
 
