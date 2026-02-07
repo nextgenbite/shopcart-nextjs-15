@@ -21,8 +21,8 @@ export const categoriesData = [
   { title: "Smartphones", href: "smartphones" },
   { title: "Air Conditioners", href: "air-conditioners" },
   { title: "Washing Machine", href: "washing-machine" },
-  { title: "Kitchen Appliances", href: "kitchen-appliances" },
-  { title: "gadget accessories", href: "gadget-accessories" },
+  // { title: "Kitchen Appliances", href: "kitchen-appliances" },
+  // { title: "gadget accessories", href: "gadget-accessories" },
 ];
 export const productType = [
   { title: "Gadget", value: "gadget" },
