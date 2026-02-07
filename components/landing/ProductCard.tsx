@@ -5,11 +5,12 @@ import Link from "next/link";
 import { Flame, StarIcon } from "lucide-react";
 import Title from "./Title";
 import PriceView from "./PriceView";
+import ProductSideMenu from "./ProductSideMenu";
 // import AddToCartButton from "./AddToCartButton";
 
 const ProductCard = ({product}: any) => {
   return (
-    <div className="text-sm border-[1px] rounded-md border-darkBlue/20 group bg-white">
+    <div className="text-sm border rounded-md border-darkBlue/20 group bg-white">
       <div className="relative group overflow-hidden bg-shop_light_bg">
         {product?.images && (
           <Link href={`/product/${product?.id}`}>
@@ -24,7 +25,7 @@ const ProductCard = ({product}: any) => {
             />
           </Link>
         )}
-        {/* <ProductSideMenu product={product} /> */}
+        <ProductSideMenu product={product} />
         {product?.status === "sale" ? (
           <p className="absolute top-2 left-2 z-10 text-xs border border-darkColor/50 px-2 rounded-full group-hover:border-lightGreen hover:text-shop_dark_green hoverEffect">
             Sale!
@@ -45,24 +46,21 @@ const ProductCard = ({product}: any) => {
       <div className="p-3 flex flex-col gap-2">
         {product?.categories && (
           <p className="uppercase line-clamp-1 text-xs font-medium text-lightText">
-            {product.categories.map((cat) => cat).join(", ")}
+            {product.categories.map((cat: Object) => cat).join(", ")}
           </p>
         )}
         <Title className="text-sm line-clamp-1">{product?.title}</Title>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center">
+      <div className="flex items-center gap-0.5 text-xs">
             {[...Array(5)].map((_, index) => (
               <StarIcon
                 key={index}
-                className={
-                  index < 4 ? "text-shop_light_green" : " text-lightText"
-                }
-                fill={index < 4 ? "#93D991" : "#ababab"}
+                size={12}
+                className={index < Math.floor(product?.rating || 0) ? "text-shop_light_green" : "text-gray-300"}
+                fill={index < Math.floor(product?.rating || 0) ? "#93D991" : "#e0e0e0"}
               />
             ))}
+            <p className="font-semibold">{`(${product?.reviews.length || 0})`}</p>
           </div>
-          <p className="text-lightText text-xs tracking-wide">5 Reviews</p>
-        </div>
 
         <div className="flex items-center gap-2.5">
           <p className="font-medium">In Stock</p>
