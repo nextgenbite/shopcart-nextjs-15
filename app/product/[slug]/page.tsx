@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { notFound } from "next/navigation";
 const ProductDetailPage = async ({ params }: { params: { slug: string } }) => {
-  const { slug } = params;
+  const { slug } = await params;
   let product: Product | null = null;
   try {
     const id = Number(slug);
@@ -38,8 +38,16 @@ const ProductDetailPage = async ({ params }: { params: { slug: string } }) => {
               <StarIcon
                 key={index}
                 size={12}
-                className={index < Math.floor(product.rating || 0) ? "text-shop_light_green" : "text-gray-300"}
-                fill={index < Math.floor(product.rating || 0) ? "#93D991" : "#e0e0e0"}
+                className={
+                  index < Math.floor(product.rating || 0)
+                    ? "text-shop_light_green"
+                    : "text-gray-300"
+                }
+                fill={
+                  index < Math.floor(product.rating || 0)
+                    ? "#93D991"
+                    : "#e0e0e0"
+                }
               />
             ))}
             <p className="font-semibold">{`(${product.reviews?.length || 0})`}</p>
@@ -49,7 +57,9 @@ const ProductDetailPage = async ({ params }: { params: { slug: string } }) => {
           <PriceView
             price={product.price}
             discount={
-              product.discountPercentage ? (product.price * (product.discountPercentage / 100)) : 0
+              product.discountPercentage
+                ? product.price * (product.discountPercentage / 100)
+                : 0
             }
             className="text-lg font-bold"
           />
