@@ -9,7 +9,7 @@ import ProductSideMenu from "./ProductSideMenu";
 import AddToCartButton from "./AddToCartButton";
 // import AddToCartButton from "./AddToCartButton";
 
-const ProductCard = ({product}: any) => {
+const ProductCard = ({product}: {product: any}) => {
   return (
     <div className="text-sm border rounded-md border-darkBlue/20 group bg-white">
       <div className="relative group overflow-hidden bg-shop_light_bg">
