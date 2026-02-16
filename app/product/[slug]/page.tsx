@@ -1,4 +1,4 @@
-import Container from "@/components/landing/container";
+import Container from "@/components/landing/Container";
 import ImageView from "@/components/landing/ImageView";
 import PriceView from "@/components/landing/PriceView";
 import { fetchProductById, Product } from "@/types/dummyjson";
@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { notFound } from "next/navigation";
 const ProductDetailPage = async ({ params }: { params: { slug: string } }) => {
-  const { slug } = params;
+  const { slug } = await params;
   let product: Product | null = null;
   try {
     const id = Number(slug);

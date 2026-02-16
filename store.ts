@@ -1,27 +1,22 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { Product } from "./types/dummyjson";
-
-
-export interface CartItem {
-  product: Product;
-  quantity: number;
-}
+import { Product, CartProduct } from "./types/dummyjson";
 
 interface StoreState {
-  items: CartItem[];
+  items: CartProduct[];
   addItem: (product: Product) => void;
-  removeItem: (productId: string) => void;
-  deleteCartProduct: (productId: string) => void;
+  removeItem: (productId: string | number) => void;
+  deleteCartProduct: (productId: string | number) => void;
   resetCart: () => void;
   getTotalPrice: () => number;
   getSubTotalPrice: () => number;
-  getItemCount: (productId: string) => number;
-  getGroupedItems: () => CartItem[];
-  //   // favorite
+  getItemCount: (productId: string | number) => number;
+  getTotalCartCount: () => number;
+  getGroupedItems: () => CartProduct[];
+  // favorite
   favoriteProduct: Product[];
   addToFavorite: (product: Product) => Promise<void>;
-  removeFromFavorite: (productId: string) => void;
+  removeFromFavorite: (productId: string | number) => void;
   resetFavorite: () => void;
 }
 
@@ -33,56 +28,86 @@ const useStore = create<StoreState>()(
       addItem: (product) =>
         set((state) => {
           const existingItem = state.items.find(
-            (item) => item.product.id === product.id
+            (item) => Number(item.id) === Number(product.id)
           );
           if (existingItem) {
             return {
               items: state.items.map((item) =>
-                item.product.id === product.id
-                  ? { ...item, quantity: item.quantity + 1 }
+                Number(item.id) === Number(product.id)
+                  ? {
+                      ...item,
+                      quantity: item.quantity + 1,
+                      total: (item.price ?? 0) * (item.quantity + 1),
+                      discountedPrice:
+                        (item.price ?? 0) -
+                        ((item.discountPercentage ?? 0) * (item.price ?? 0)) / 100,
+                    }
                   : item
               ),
             };
           } else {
-            return { items: [...state.items, { product, quantity: 1 }] };
+            const price = product.price ?? 0;
+            const discountPercentage = product.discountPercentage ?? 0;
+            const discountedPrice =
+              price - (discountPercentage * price) / 100;
+            const newItem: CartProduct = {
+              id: product.id,
+              title: product.title,
+              price,
+              quantity: 1,
+              total: price,
+              discountPercentage,
+              discountedPrice,
+            };
+            return { items: [...state.items, newItem] };
           }
         }),
       removeItem: (productId) =>
         set((state) => ({
           items: state.items.reduce((acc, item) => {
-            if (Number(item.product.id) === Number(productId)) {
+            if (Number(item.id) === Number(productId)) {
               if (item.quantity > 1) {
-                acc.push({ ...item, quantity: item.quantity - 1 });
+                acc.push({
+                  ...item,
+                  quantity: item.quantity - 1,
+                  total: (item.price ?? 0) * (item.quantity - 1),
+                  discountedPrice:
+                    (item.price ?? 0) -
+                    ((item.discountPercentage ?? 0) * (item.price ?? 0)) / 100,
+                });
               }
             } else {
               acc.push(item);
             }
             return acc;
-          }, [] as CartItem[]),
+          }, [] as CartProduct[]),
         })),
       deleteCartProduct: (productId) =>
         set((state) => ({
           items: state.items.filter(
-            ({ product }) => Number(product?.id) !== Number(productId)
+            (item) => Number(item.id) !== Number(productId)
           ),
         })),
       resetCart: () => set({ items: [] }),
+      getTotalCartCount: () => {
+        return get().items.reduce((total, item) => total + item.quantity, 0);
+      },
       getTotalPrice: () => {
         return get().items.reduce(
-          (total, item) => total + (item.product.price ?? 0) * item.quantity,
+          (total, item) => total + (item.price ?? 0) * item.quantity,
           0
         );
       },
       getSubTotalPrice: () => {
         return get().items.reduce((total, item) => {
-          const price = item.product.price ?? 0;
-          const discount = ((item.product.discount ?? 0) * price) / 100;
-          const discountedPrice = price + discount;
+          const price = item.price ?? 0;
+          const discount = ((item.discountPercentage ?? 0) * price) / 100;
+          const discountedPrice = price - discount;
           return total + discountedPrice * item.quantity;
         }, 0);
       },
       getItemCount: (productId) => {
-        const item = get().items.find((item) => Number(item.product.id) === Number(productId));
+        const item = get().items.find((item) => Number(item.id) === Number(productId));
         return item ? item.quantity : 0;
       },
       getGroupedItems: () => get().items,
@@ -94,16 +119,14 @@ const useStore = create<StoreState>()(
             );
             return {
               favoriteProduct: isFavorite
-                ? state.favoriteProduct.filter(
-                    (item) => item.id !== product.id
-                  )
+                ? state.favoriteProduct.filter((item) => item.id !== product.id)
                 : [...state.favoriteProduct, { ...product }],
             };
           });
           resolve();
         });
       },
-      removeFromFavorite: (productId: string) => {
+      removeFromFavorite: (productId: string | number) => {
         set((state: StoreState) => ({
           favoriteProduct: state.favoriteProduct.filter(
             (item) => Number(item?.id) !== Number(productId)

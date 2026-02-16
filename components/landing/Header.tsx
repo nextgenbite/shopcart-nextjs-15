@@ -1,4 +1,4 @@
-import  Container from "./container";
+import  Container from "./Container";
 import Logo from "./Logo";
 import HeaderMenu from "./headerMenu";
 import Searchbar from "./Searchbar";

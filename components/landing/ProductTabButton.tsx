@@ -17,16 +17,17 @@ const ProductTabButton = ({selectedTab, setSelectedTab}: Props) => {
           <div className="flex items-center flex-wrap gap-5 justify-between">
         <div className="flex items-center gap-1.5 text-sm font-semibold">
       <div className="flex items-center gap-1.5 md:gap-3">
-      {categories && categories.length > 0 && categories.map((category, index) => (
-        <button
-          key={category.name}
-          onClick={() => setSelectedTab(category.slug)}
-          className={`border border-shop_light_green/30 px-4 py-1.5 md:px-6 md:py-2 rounded-full hover:bg-shop_light_green hover:border-shop_light_green hover:text-white hoverEffect ${selectedTab === category.slug ? "bg-shop_light_green text-white border-shop_light_green" : "bg-shop_light_green/10"}`}
-        >
-          {category.name}
-        </button>
-      )).slice(0, 6)
-      }
+      {categories && categories.length > 0 && categories
+        .slice(0, 6)
+        .map((category) => (
+          <button
+            key={category}
+            onClick={() => setSelectedTab(category)}
+            className={`border border-shop_light_green/30 px-4 py-1.5 md:px-6 md:py-2 rounded-full hover:bg-shop_light_green hover:border-shop_light_green hover:text-white hoverEffect ${selectedTab === category ? "bg-shop_light_green text-white border-shop_light_green" : "bg-shop_light_green/10"}`}
+          >
+            {category}
+          </button>
+        ))}
     </div>
         </div>
         <a

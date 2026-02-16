@@ -2,7 +2,7 @@ import React from "react";
 import FooterTop from "./FooterTop";
 import { categoriesData, quickLinksData } from "@/constants/data";
 import Link from "next/link";
-import Container from "./container";
+import Container from "./Container";
 import { SubText, SubTitle } from "../ui/text";
 import SocialMediaBtn from "./SocialMediaBtn";
 import { Input } from "../ui/input";
@@ -72,10 +72,10 @@ const Footer = () => {
 
   
         <div className="py-6 border-t text-center text-sm text-gray-600">
-          <div>
+          {/* <div>
             © {new Date().getFullYear()} <Logo className="text-sm" />. All
             rights reserved.
-          </div>
+          </div> */}
         </div>
       </Container>
     </footer>

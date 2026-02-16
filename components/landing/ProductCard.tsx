@@ -6,6 +6,7 @@ import { Flame, StarIcon } from "lucide-react";
 import Title from "./Title";
 import PriceView from "./PriceView";
 import ProductSideMenu from "./ProductSideMenu";
+import AddToCartButton from "./AddToCartButton";
 // import AddToCartButton from "./AddToCartButton";
 
 const ProductCard = ({product}: any) => {
@@ -76,7 +77,7 @@ const ProductCard = ({product}: any) => {
           discount={product?.discountPercentage ? product?.price * (product?.discountPercentage / 100) as number : 0}
           className="text-sm"
         />
-        {/* <AddToCartButton product={product} className="w-36 rounded-full" /> */}
+        <AddToCartButton product={product} className="w-36 rounded-full" />
       </div>
     </div>
   );

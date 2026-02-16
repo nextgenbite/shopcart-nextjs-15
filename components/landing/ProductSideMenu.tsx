@@ -23,8 +23,6 @@ const ProductSideMenu = ({
   }, [product, favoriteProduct]);
   const handleFavorite = (e: React.MouseEvent<HTMLSpanElement>) => {
     e.preventDefault();
-    toast("handle favorite called");
-    toast.success('Processing...');
     if (product?.id) {
       addToFavorite(product).then(() => {
         toast.success(
