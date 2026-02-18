@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { Product } from "./types/dummyjson";
+import { Product } from "./types/active_ecommerce_json";
 
 
 export interface CartItem {
@@ -11,17 +11,17 @@ export interface CartItem {
 interface StoreState {
   items: CartItem[];
   addItem: (product: Product) => void;
-  removeItem: (productId: string) => void;
-  deleteCartProduct: (productId: string) => void;
+  removeItem: (productId: number) => void;
+  deleteCartProduct: (productId: number) => void;
   resetCart: () => void;
   getTotalPrice: () => number;
   getSubTotalPrice: () => number;
-  getItemCount: (productId: string) => number;
+  getItemCount: (productId: number) => number;
   getGroupedItems: () => CartItem[];
   //   // favorite
   favoriteProduct: Product[];
   addToFavorite: (product: Product) => Promise<void>;
-  removeFromFavorite: (productId: string) => void;
+  removeFromFavorite: (productId: number) => void;
   resetFavorite: () => void;
 }
 
@@ -103,7 +103,7 @@ const useStore = create<StoreState>()(
           resolve();
         });
       },
-      removeFromFavorite: (productId: string) => {
+      removeFromFavorite: (productId: number) => {
         set((state: StoreState) => ({
           favoriteProduct: state.favoriteProduct.filter(
             (item) => Number(item?.id) !== Number(productId)

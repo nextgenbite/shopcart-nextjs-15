@@ -1,8 +1,9 @@
-import Container from "@/components/landing/container";
+import Container from "@/components/landing/Container";
 import Hero from "@/components/landing/Hero";
 import ProductGrid from "@/components/landing/ProductGrid";
 
-const Home = () => {
+const Home = async() => {
+
   return (
   <div>
     <Container>

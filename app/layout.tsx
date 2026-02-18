@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
-
+import AuthProvider from "@/components/provider/AuthProviders";
+import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
   title: {
@@ -18,15 +19,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" data-arp="">
       <body className="font-poppins antialiased">
-      <main className="flex min-h-screen flex-col">
-        <div className="flex-1">
-            <Header />
-        {children}
-        <Footer />
-        </div>
-      </main>
+        <AuthProvider>
+          <main className="flex min-h-screen flex-col">
+            <div className="flex-1">
+              <Header />
+              {children}
+              <Footer />
+            </div>
+          </main>
+        </AuthProvider>
+        <Toaster position="top-right" />
       </body>
     </html>
   );

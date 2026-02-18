@@ -1,8 +1,9 @@
+'use client';
 import React from "react";
 import FooterTop from "./FooterTop";
 import { categoriesData, quickLinksData } from "@/constants/data";
 import Link from "next/link";
-import Container from "./container";
+import Container from "./Container";
 import { SubText, SubTitle } from "../ui/text";
 import SocialMediaBtn from "./SocialMediaBtn";
 import { Input } from "../ui/input";

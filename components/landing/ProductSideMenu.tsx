@@ -1,7 +1,7 @@
 "use client";
 import { cn } from "@/lib/utils";
 import useStore from "@/store";
-import { Product } from "@/types/dummyjson";
+import { Product } from "@/types/active_ecommerce_json";
 import { Heart } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast, { Toaster } from 'react-hot-toast';
