@@ -8,7 +8,7 @@ import FavoriteBtn from "./FavoriteBtn";
 import LoginBtn from "./LoginBtn";
 import MobileMenu from "./MobileMenu";
 import { useAuthStore } from "@/stores/authStore";
-import { AuthDropdown } from "../auth/AuthDropdown";
+import { UserDropdown } from "../auth/UserDropdown";
 
 const Header = () => {
   const { token } = useAuthStore();
@@ -29,7 +29,7 @@ const Header = () => {
           <CartIcon />
           <FavoriteBtn />
           {token ? (
-            <AuthDropdown />
+            <UserDropdown />
           ) : (
             <LoginBtn />
           )}

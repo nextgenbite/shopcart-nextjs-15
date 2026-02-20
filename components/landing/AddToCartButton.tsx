@@ -6,8 +6,9 @@ import { ShoppingBag } from "lucide-react";
 import toast from "react-hot-toast";
 import PriceFormatter from "./PriceFormatter";
 import QuantityButtons from "./QuantityButtons";
-import { useState } from "react";
 import { useCartStore } from "@/stores/cartStore";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/stores/authStore";
 
 interface Props {
   product: Product;
@@ -16,15 +17,17 @@ interface Props {
 
 const AddToCartButton = ({ product, className }: Props) => {
   const { addToCart, getItemCount } = useCartStore();
+  const router = useRouter();
+  const { user } = useAuthStore();
 
   const itemCount = getItemCount(product?.id);
   const isOutOfStock = product?.stock === 0 || itemCount >= (product?.stock as number);
 
   const handleAddToCart = async () => {
-    // if (!user) return router.push("/login");
+    if (!user) return router.push("/login");
     try {
       if ((product?.stock as number) > itemCount) {
-        await addToCart(product?.id, 1);
+        await addToCart(user.id, product?.id, 1);
         toast.success(
           `${product?.title?.substring(0, 12)}... added successfully!`,
         );
@@ -37,7 +40,7 @@ const AddToCartButton = ({ product, className }: Props) => {
   };
   return (
     <div className="w-full h-12 flex items-center">
-      {(product?.stock as number) === 0 ? (
+      {itemCount > 0 ? (
         <div className="text-sm w-full">
           <div className="flex items-center justify-between">
             <span className="text-xs text-darkColor/80">Quantity</span>

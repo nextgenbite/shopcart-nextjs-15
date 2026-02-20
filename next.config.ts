@@ -5,8 +5,8 @@ const nextConfig: NextConfig = {
     images: {
     remotePatterns: [
       {
-        protocol: "https",
-        hostname: "ecomapi.nextgenbite.com",
+        protocol: "http",
+        hostname: "localhost",
       },
     ],
   },

@@ -14,12 +14,22 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useAuthStore } from "@/stores/authStore";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import toast from "react-hot-toast";
 
-export function AuthDropdown() {
+export function UserDropdown() {
       const { user, logout, isLoading } = useAuthStore();
 const handleLogout = async () => {
-  await logout();
-  // Optionally, you can add a redirect here after logout
+  if (user) {
+    
+    await logout();
+    toast.success('Logout succesfully')
+    return  useRouter().push('/login');
+  }
+}
+if (!user) {
+ return  useRouter().push('/login'); 
 }
   return (
     <DropdownMenu>
@@ -30,7 +40,7 @@ const handleLogout = async () => {
         <DropdownMenuGroup>
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuItem>
-            Profile
+            <Link href='/dashboard' >Profile</Link>
             <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem>

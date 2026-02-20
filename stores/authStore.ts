@@ -6,7 +6,9 @@ import axios, { AxiosError } from "axios";
 // API client (see step 2 for full setup)
 // Use a local axios instance here to avoid circular imports with `lib/api`
 const axiosClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000/api",
+  baseURL:
+    process.env.NEXT_PUBLIC_BACKEND_URL + "/api/" ||
+    "http://localhost:8000/api",
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
@@ -30,6 +32,7 @@ interface AuthState {
   fetchUser: () => Promise<void>;
   setToken: (token: string) => void;
   clearError: () => void;
+  initializeAuth: () =>  void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -121,9 +124,9 @@ export const useAuthStore = create<AuthState>()(
         const token = Cookies.get("auth_token");
         if (token) {
           set({ token });
-          // Optionally fetch user
         }
       },
+
       setToken: (token) => set({ token }),
 
       clearError: () => set({ error: null }),

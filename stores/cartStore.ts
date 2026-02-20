@@ -1,20 +1,26 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import api from "@/lib/api"; // your axios instance from the auth example
-import {Cart, CartItem } from "@/types/active_ecommerce_json";
+import { Cart, CartItem } from "@/types/active_ecommerce_json";
 
 // Types based on your Laravel API response
-
-
 
 interface CartState {
   cart: Cart | null;
   isLoading: boolean;
   error: string | null;
   fetchCart: () => Promise<void>;
-  addToCart: (productId: number, quantity?: number) => Promise<void>;
-  updateCartItem: (cartItemId: number, quantity: number) => Promise<void>;
-  removeFromCart: (cartItemId: number) => Promise<void>;
+  addToCart: (
+    userId: number,
+    productId: number,
+    quantity?: number,
+  ) => Promise<void>;
+  updateCartItem: (
+    userId: number,
+    productId: number,
+    quantity: number,
+  ) => Promise<void>;
+  removeFromCart: (userId: number, productId: number) => Promise<void>;
   clearCart: () => Promise<void>;
   clearError: () => void;
   getItemCount: (productId: number) => number;
@@ -30,11 +36,17 @@ export const useCartStore = create<CartState>((set, get) => ({
     try {
       const response = await api.get("/cart");
       set({
-        cart:{ items: response?.data?.data.items, total: response?.data?.data.total, item_count:  response?.data?.data.items.reduce(
-            (sum: number, item: CartItem) => sum + item.quantity,
-            0,
-          ) || 0 },
-       
+        cart: {
+          items: response?.data?.data.items,
+          subtotal: response?.data?.data.subtotal,
+          total: response?.data?.data.total,
+          item_count:
+            response?.data?.data.items.reduce(
+              (sum: number, item: CartItem) => sum + item.quantity,
+              0,
+            ) || 0,
+        },
+
         isLoading: false,
       });
     } catch (error: any) {
@@ -45,20 +57,28 @@ export const useCartStore = create<CartState>((set, get) => ({
     }
   },
 
-  addToCart: async (productId, quantity = 1) => {
+  addToCart: async (userId, productId, quantity = 1) => {
     set({ isLoading: true, error: null });
     try {
       const response = await api.post("/cart/add", {
+        user_id: userId,
         product_id: productId,
         quantity,
       });
       // After adding, update the cart with the new data from server
-          set({
-        cart:{ items: response?.data?.data.items, total: response?.data?.data.total, item_count:  response?.data?.data.items.reduce(
-            (sum: number, item: CartItem) => sum + item.quantity,
-            0,
-          ) || 0 },
-       
+      set({
+        cart: {
+          items: response?.data?.data.items,
+          subtotal: response?.data?.data.subtotal,
+
+          total: response?.data?.data.total,
+          item_count:
+            response?.data?.data.items.reduce(
+              (sum: number, item: CartItem) => sum + item.quantity,
+              0,
+            ) || 0,
+        },
+
         isLoading: false,
       });
     } catch (error: any) {
@@ -69,13 +89,29 @@ export const useCartStore = create<CartState>((set, get) => ({
     }
   },
 
-  updateCartItem: async (cartItemId, quantity) => {
+  updateCartItem: async (userId, productId, quantity) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.put(`/cart/update/${cartItemId}`, {
+      const response = await api.post(`/cart/update`, {
+        user_id: userId,
+        product_id: productId,
         quantity,
       });
-      set({ cart: response.data.cart, isLoading: false });
+      set({
+        cart: {
+          items: response?.data?.data.items,
+          subtotal: response?.data?.data.subtotal,
+
+          total: response?.data?.data.total,
+          item_count:
+            response?.data?.data.items.reduce(
+              (sum: number, item: CartItem) => sum + item.quantity,
+              0,
+            ) || 0,
+        },
+
+        isLoading: false,
+      });
     } catch (error: any) {
       set({
         error: error.response?.data?.message || "Failed to update cart item",
@@ -84,16 +120,27 @@ export const useCartStore = create<CartState>((set, get) => ({
     }
   },
 
-  removeFromCart: async (productId) => {
+  removeFromCart: async (userId, productId) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.post(`/cart/remove`,{
+      const response = await api.post(`/cart/remove`, {
+        user_id: userId,
         product_id: productId,
       });
-      set({ cart:{ items: response?.data?.data.items, total: response?.data?.data.total, item_count:  response?.data?.data.items.reduce(
-            (sum: number, item: CartItem) => sum + item.quantity,
-            0,
-          ) || 0 }, isLoading: false });
+      set({
+        cart: {
+          items: response?.data?.data.items,
+          subtotal: response?.data?.data.subtotal,
+
+          total: response?.data?.data.total,
+          item_count:
+            response?.data?.data.items.reduce(
+              (sum: number, item: CartItem) => sum + item.quantity,
+              0,
+            ) || 0,
+        },
+        isLoading: false,
+      });
     } catch (error: any) {
       set({
         error:
@@ -106,8 +153,11 @@ export const useCartStore = create<CartState>((set, get) => ({
   clearCart: async () => {
     set({ isLoading: true, error: null });
     try {
-      await api.post("/cart/clear");
-      set({ cart: { items: [], total: 0, item_count: 0 }, isLoading: false });
+      await api.delete("/cart/clear");
+      set({
+        cart: { items: [], subtotal: 0, total: 0, item_count: 0 },
+        isLoading: false,
+      });
     } catch (error: any) {
       set({
         error: error.response?.data?.message || "Failed to clear cart",
@@ -115,9 +165,11 @@ export const useCartStore = create<CartState>((set, get) => ({
       });
     }
   },
-      getItemCount: (productId) => {
-        const item = get().cart?.items.find((item) => Number(item.product.id) === Number(productId));
-        return item ? item.quantity : 0;
-      },
+  getItemCount: (productId) => {
+    const item = get().cart?.items.find(
+      (item) => Number(item.product.id) === Number(productId),
+    );
+    return item ? item.quantity : 0;
+  },
   clearError: () => set({ error: null }),
 }));

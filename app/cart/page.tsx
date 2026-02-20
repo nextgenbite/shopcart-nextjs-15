@@ -1,7 +1,5 @@
 "use client";
 
-
-
 import Container from "@/components/landing/Container";
 import EmptyCart from "@/components/landing/EmptyCart";
 import NoAccess from "@/components/landing/NoAccess";
@@ -29,17 +27,17 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 const CartPage = () => {
-  const {cart, clearCart} = useCartStore()
+  const { cart, clearCart, getItemCount, removeFromCart } = useCartStore();
   const {
     deleteCartProduct,
     getTotalPrice,
-    getItemCount,
+
     getSubTotalPrice,
     resetCart,
   } = useStore();
   const [loading, setLoading] = useState(false);
-  const groupedItems = useStore((state) => state.getGroupedItems());
-  const { token, user} = useAuthStore();
+  // const groupedItems = useStore((state) => state.getGroupedItems());
+  const { token, user } = useAuthStore();
   const [addresses, setAddresses] = useState<Address[] | null>(null);
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
 
@@ -66,10 +64,10 @@ const CartPage = () => {
   }, []);
   const handleResetCart = () => {
     const confirmed = window.confirm(
-      "Are you sure you want to reset your cart?"
+      "Are you sure you want to reset your cart?",
     );
     if (confirmed) {
-      resetCart();
+      clearCart();
       toast.success("Cart reset successfully!");
     }
   };
@@ -98,7 +96,7 @@ const CartPage = () => {
     <div className="bg-gray-50 pb-52 md:pb-10">
       {token ? (
         <Container>
-          {groupedItems?.length ? (
+          {cart && cart?.item_count > 0 ? (
             <>
               <div className="flex items-center gap-2 py-5">
                 <ShoppingBag className="text-darkColor" />
@@ -107,7 +105,7 @@ const CartPage = () => {
               <div className="grid lg:grid-cols-3 md:gap-8">
                 <div className="lg:col-span-2 rounded-lg">
                   <div className="border bg-white rounded-md">
-                    {groupedItems?.map(({ product }) => {
+                    {cart?.items?.map(({ product }) => {
                       const itemCount = getItemCount(product?.id);
                       return (
                         <div
@@ -115,14 +113,18 @@ const CartPage = () => {
                           className="border-b p-2.5 last:border-b-0 flex items-center justify-between gap-5"
                         >
                           <div className="flex flex-1 items-start gap-2 h-36 md:h-44">
-                            {product?.images && (
+                            {product?.thumbnail && (
                               <Link
                                 href={`/product/${product?.slug}`}
                                 className="border p-0.5 md:p-1 mr-2 rounded-md
                                  overflow-hidden group"
                               >
                                 <Image
-                                  src={process.env.NEXT_PUBLIC_BACKEND_URL + '/' + product.thumbnail}
+                                  src={
+                                    process.env.NEXT_PUBLIC_BACKEND_URL +
+                                    "/" +
+                                    product.thumbnail
+                                  }
                                   alt="productImage"
                                   width={500}
                                   height={500}
@@ -166,10 +168,15 @@ const CartPage = () => {
                                     <TooltipTrigger>
                                       <Trash
                                         onClick={() => {
-                                          deleteCartProduct(product?.id);
-                                          toast.success(
-                                            "Product deleted successfully!"
-                                          );
+                                          if (user) {
+                                            removeFromCart(
+                                              user?.id,
+                                              product?.id,
+                                            );
+                                            toast.success(
+                                              "Product deleted successfully!",
+                                            );
+                                          }
                                         }}
                                         className="w-4 h-4 md:w-5 md:h-5 mr-1 text-gray-500 hover:text-red-600 hoverEffect"
                                       />
@@ -210,7 +217,7 @@ const CartPage = () => {
                       <div className="space-y-4">
                         <div className="flex items-center justify-between">
                           <span>SubTotal</span>
-                          <PriceFormatter amount={getSubTotalPrice()} />
+                          <PriceFormatter amount={cart.subtotal} />
                         </div>
                         <div className="flex items-center justify-between">
                           <span>Discount</span>

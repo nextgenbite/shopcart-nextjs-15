@@ -13,7 +13,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   useEffect(() => {
     const token = Cookies.get('auth_token');
     if (token) {
-      setToken(token);
+      useAuthStore.getState().initializeAuth();
       fetchUser();
         fetchCart()
     }

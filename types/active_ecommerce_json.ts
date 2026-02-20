@@ -7,6 +7,11 @@ export interface Category {
   title: string;
   slug: string;
 }
+export interface Brand {
+  id: number;
+  title: string;
+  slug: string;
+}
 
 export interface Product {
   id: number;
@@ -53,7 +58,7 @@ export interface Cart {
   item_count: number;
   // discount: number;
   // user_id: number;
-  // subtotal: number;
+  subtotal: number;
   // shipping_cost: number;
   // tax: number;
   total: number;
@@ -108,6 +113,16 @@ export async function fetchCartById(id: number): Promise<Cart> {
 
 export async function fetchCategories(): Promise<Category[]> {
     const res = await fetch(`${BASE_URL}/public/categories`, {
+    // SSR with 60s caching
+    next: { revalidate: 60 },
+  });
+  if (!res.ok) throw new Error(`fetchCategories failed: ${res.status}`);
+  const data = await res.json();
+  console.log("fetchCategories response:", data);
+  return data; // assuming paginated response
+}
+export async function fetchBrands(): Promise<Brand[]> {
+    const res = await fetch(`${BASE_URL}/public/brands`, {
     // SSR with 60s caching
     next: { revalidate: 60 },
   });
