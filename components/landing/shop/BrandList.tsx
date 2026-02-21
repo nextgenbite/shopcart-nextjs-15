@@ -28,7 +28,7 @@ const BrandList = ({ brands, selectedBrand, setSelectedBrand }: Props) => {
             />
             <Label
               htmlFor={brand?.slug}
-              className={`${selectedBrand === brand?.slug ? "font-semibold text-shop_dark_green" : "font-normal"}`}
+              className={`capitalize ${selectedBrand === brand?.slug ? "font-semibold text-shop_dark_green" : "font-normal"}`}
             >
               {brand?.title}
             </Label>

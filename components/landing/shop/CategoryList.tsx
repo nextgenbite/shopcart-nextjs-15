@@ -17,23 +17,23 @@ const CategoryList = ({
   return (
     <div className="w-full bg-white p-5">
       <Title className="text-base font-black">Product Categories</Title>
-      <RadioGroup value={selectedCategory || ""} className="mt-2 space-y-1">
+      <RadioGroup value={selectedCategory || null} className="mt-2 space-y-1">
         {categories?.map((category) => (
           <div
             onClick={() => {
-              setSelectedCategory(category?.slug);
+              setSelectedCategory(category?.id);
             }}
             key={category?.id}
             className="flex items-center space-x-2 hover:cursor-pointer"
           >
             <RadioGroupItem
-              value={category?.slug}
-              id={category?.slug}
+              value={category?.id}
+              id={category?.id}
               className="rounded-sm"
             />
             <Label
-              htmlFor={category?.slug}
-              className={`${selectedCategory === category?.slug ? "font-semibold text-shop_dark_green" : "font-normal"}`}
+              htmlFor={category?.id}
+              className={`capitalize ${selectedCategory === category?.id ? "font-semibold text-shop_dark_green" : "font-normal"}`}
             >
               {category?.title}
             </Label>

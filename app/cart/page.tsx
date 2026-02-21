@@ -7,7 +7,6 @@ import PriceFormatter from "@/components/landing/PriceFormatter";
 import ProductSideMenu from "@/components/landing/ProductSideMenu";
 import QuantityButtons from "@/components/landing/QuantityButtons";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Title } from "@/components/ui/text";
 import {
@@ -16,25 +15,23 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import useStore from "@/store";
 import { useAuthStore } from "@/stores/authStore";
 import { useCartStore } from "@/stores/cartStore";
 import { ShoppingBag, Trash } from "lucide-react";
-import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
+import {
+  createCheckoutSession,
+  Metadata,
+} from "@/actions/createCheckoutSession";
+import { Address } from "@/types/active_ecommerce_json";
+
 const CartPage = () => {
   const { cart, clearCart, getItemCount, removeFromCart } = useCartStore();
-  const {
-    deleteCartProduct,
-    getTotalPrice,
 
-    getSubTotalPrice,
-    resetCart,
-  } = useStore();
   const [loading, setLoading] = useState(false);
   // const groupedItems = useStore((state) => state.getGroupedItems());
   const { token, user } = useAuthStore();
@@ -60,7 +57,7 @@ const CartPage = () => {
     // }
   };
   useEffect(() => {
-    fetchAddresses();
+    // fetchAddresses();
   }, []);
   const handleResetCart = () => {
     const confirmed = window.confirm(
@@ -74,23 +71,23 @@ const CartPage = () => {
 
   const handleCheckout = async () => {
     setLoading(true);
-    // try {
-    //   const metadata: Metadata = {
-    //     orderNumber: crypto.randomUUID(),
-    //     customerName: user?.fullName ?? "Unknown",
-    //     customerEmail: user?.emailAddresses[0]?.emailAddress ?? "Unknown",
-    //     clerkUserId: user?.id,
-    //     address: selectedAddress,
-    //   };
-    //   const checkoutUrl = await createCheckoutSession(groupedItems, metadata);
-    //   if (checkoutUrl) {
-    //     window.location.href = checkoutUrl;
-    //   }
-    // } catch (error) {
-    //   console.error("Error creating checkout session:", error);
-    // } finally {
-    //   setLoading(false);
-    // }
+    try {
+      const metadata: Metadata = {
+        orderNumber: `ORDER-${Date.now()}`,
+        customerName: user?.name ?? "Unknown",
+        customerEmail: user?.email ?? "Unknown",
+        userId: user?.id.toString() ?? "",
+        address: selectedAddress,
+      };
+      const checkoutUrl = await createCheckoutSession(cart?.items ?? [], metadata);
+      if (checkoutUrl) {
+        window.location.href = checkoutUrl;
+      }
+    } catch (error) {
+      console.error("Error creating checkout session:", error);
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <div className="bg-gray-50 pb-52 md:pb-10">
@@ -222,14 +219,14 @@ const CartPage = () => {
                         <div className="flex items-center justify-between">
                           <span>Discount</span>
                           <PriceFormatter
-                            amount={getSubTotalPrice() - getTotalPrice()}
+                            amount={cart.subtotal - cart.total}
                           />
                         </div>
                         <Separator />
                         <div className="flex items-center justify-between font-semibold text-lg">
                           <span>Total</span>
                           <PriceFormatter
-                            amount={getTotalPrice()}
+                            amount={cart.total}
                             className="text-lg font-bold text-black"
                           />
                         </div>
@@ -295,19 +292,19 @@ const CartPage = () => {
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
                         <span>SubTotal</span>
-                        <PriceFormatter amount={getSubTotalPrice()} />
+                        <PriceFormatter amount={cart.subtotal} />
                       </div>
                       <div className="flex items-center justify-between">
                         <span>Discount</span>
                         <PriceFormatter
-                          amount={getSubTotalPrice() - getTotalPrice()}
+                          amount={cart.subtotal - cart.total}
                         />
                       </div>
                       <Separator />
                       <div className="flex items-center justify-between font-semibold text-lg">
                         <span>Total</span>
                         <PriceFormatter
-                          amount={getTotalPrice()}
+                          amount={cart.total}
                           className="text-lg font-bold text-black"
                         />
                       </div>

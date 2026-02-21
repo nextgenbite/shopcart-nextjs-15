@@ -11,7 +11,6 @@ import AddToCartButton from "./AddToCartButton";
 // import AddToCartButton from "./AddToCartButton";
 
 const ProductCard = ({product}: {product: Product}) => {
-  console.log("Product in ProductCard:", product);
   return (
     <div className="text-sm border rounded-md border-darkBlue/20 group bg-white">
       <div className="relative group overflow-hidden bg-shop_light_bg">
