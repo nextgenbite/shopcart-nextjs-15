@@ -1,24 +1,32 @@
+"use client";
 import Container from "@/components/landing/Container";
-import OrdersComponent from "@/components/OrdersComponent";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Table, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { getMyOrders } from "@/sanity/queries";
-import { auth } from "@clerk/nextjs/server";
+import Orders from "@/components/user/Orders";
+import { useAuthStore } from "@/stores/authStore";
 import { FileX } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import React from "react";
-
-const OrdersPage = async () => {
-  const { userId } = await auth();
-  if (!userId) {
-    return redirect("/");
-  }
-
-  const orders = await getMyOrders(userId);
-
+import React, { useEffect, useState } from "react";
+import { fetchOrdersByUser, Order } from "@/types/active_ecommerce_json";
+const OrdersPage = () => {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const { user } = useAuthStore();
+  useEffect(() => {
+    if (!user) {
+      redirect("/login");
+    }
+    fetchOrdersByUser(user?.id)
+      .then((data) => {
+        setOrders(data);
+        console.log("Fetched orders in Orders component:", data);
+      })
+      .catch((error) => {
+        console.error("Error fetching orders in Orders component:", error);
+      });
+  }, [orders]);
   return (
     <div>
       <Container className="py-10">
@@ -50,7 +58,7 @@ const OrdersPage = async () => {
                       <TableHead className="text-center">Action</TableHead>
                     </TableRow>
                   </TableHeader>
-                  <OrdersComponent orders={orders} />
+                  <Orders orders={orders} />
                 </Table>
                 <ScrollBar orientation="horizontal" />
               </ScrollArea>

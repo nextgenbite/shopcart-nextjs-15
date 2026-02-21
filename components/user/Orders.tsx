@@ -1,6 +1,6 @@
 "use client";
 
-import { MY_ORDERS_QUERYResult } from "@/sanity.types";
+
 import { TableBody, TableCell, TableRow } from "../ui/table";
 import {
   Tooltip,
@@ -8,17 +8,25 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
-import { format } from "date-fns";
+// import { format } from "date-fns";
 import { X } from "lucide-react";
-import { useState } from "react";
-import OrderDetailDialog from "./OrderDetailDialog";
+import { use, useEffect, useState } from "react";
+// import OrderDetailDialog from "./OrderDetailDialog";
 import toast from "react-hot-toast";
 import PriceFormatter from "../landing/PriceFormatter";
+import { Order } from "@/types/active_ecommerce_json";
+const Orders = ({ orders }: { orders: Order[] }) => {
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  // useEffect(() => {
+  //   if (user) {
+      
+  //     fetchOrdersByUser(user?.id).then((data) => {
+  //       console.log("Fetched orders in Orders component:", data);
+  //     }).catch((error) => {  console.error("Error fetching orders in Orders component:", error);
+  //     });
+  //   }
 
-const OrdersComponent = ({ orders }: { orders: MY_ORDERS_QUERYResult }) => {
-  const [selectedOrder, setSelectedOrder] = useState<
-    MY_ORDERS_QUERYResult[number] | null
-  >(null);
+  // }, [orders]);
   const handleDelete = () => {
     toast.error("Delete method applied for Admin");
   };
@@ -27,26 +35,26 @@ const OrdersComponent = ({ orders }: { orders: MY_ORDERS_QUERYResult }) => {
       <TableBody>
         <TooltipProvider>
           {orders.map((order) => (
-            <Tooltip key={order?.orderNumber}>
+            <Tooltip key={order?.id}>
               <TooltipTrigger asChild>
                 <TableRow
                   className="cursor-pointer hover:bg-gray-100 h-12"
                   onClick={() => setSelectedOrder(order)}
                 >
                   <TableCell className="font-medium">
-                    {order.orderNumber?.slice(-10) ?? "N/A"}...
+                    {order.id?.slice(-10) ?? "N/A"}...
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
-                    {order?.orderDate &&
-                      format(new Date(order.orderDate), "dd/MM/yyyy")}
+                    {order?.orderDate ? new Date(order.orderDate).toLocaleDateString() : "N/A"}
                   </TableCell>
-                  <TableCell>{order.customerName}</TableCell>
+                  <TableCell>{order.user.name}</TableCell>
                   <TableCell className="hidden sm:table-cell">
-                    {order.email}
+                    {order.user.email}
                   </TableCell>
                   <TableCell>
                     <PriceFormatter
-                      amount={order?.totalPrice}
+                      amount={Number(order.total)}
+
                       className="text-black font-medium"
                     />
                   </TableCell>
@@ -54,7 +62,7 @@ const OrdersComponent = ({ orders }: { orders: MY_ORDERS_QUERYResult }) => {
                     {order?.status && (
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                          order.status === "paid"
+                          order.paymentstatus === "paid"
                             ? "bg-green-100 text-green-800"
                             : "bg-yellow-100 text-yellow-800"
                         }`}
@@ -66,9 +74,9 @@ const OrdersComponent = ({ orders }: { orders: MY_ORDERS_QUERYResult }) => {
                   </TableCell>
 
                   <TableCell className="hidden sm:table-cell">
-                    {order?.invoice && (
+                    {order?.id && (
                       <p className="font-medium line-clamp-1">
-                        {order?.invoice ? order?.invoice?.number : "----"}
+                        {order?.id ?? "----"}
                       </p>
                     )}
                   </TableCell>
@@ -93,13 +101,13 @@ const OrdersComponent = ({ orders }: { orders: MY_ORDERS_QUERYResult }) => {
           ))}
         </TooltipProvider>
       </TableBody>
-      <OrderDetailDialog
+      {/* <OrderDetailDialog
         order={selectedOrder}
         isOpen={!!selectedOrder}
         onClose={() => setSelectedOrder(null)}
-      />
+      /> */}
     </>
   );
 };
 
-export default OrdersComponent;
+export default Orders;

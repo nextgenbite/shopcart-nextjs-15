@@ -2,8 +2,8 @@
 import { Category, fetchCategories } from "@/types/active_ecommerce_json";
 import React, { useEffect, useState } from "react";
 interface Props {
-  selectedTab: number;
-  setSelectedTab: (tab: number) => void;
+  selectedTab: string;
+  setSelectedTab: (tab: string) => void;
 }
 const ProductTabButton = ({ selectedTab, setSelectedTab }: Props) => {
   const [categories, setCategories] = useState<Category[]>([]);

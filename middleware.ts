@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 // Paths that do NOT require authentication
-const publicPaths = ['/login', '/register', '/', '/cart', '/deal','/shop', '/products', '/products/(.*)']; // homepage and product pages are public
-const authPaths = ['/login', '/register']; // paths that should redirect to dashboard if already authenticated
+const publicPaths = ['/login', '/register', '/', '/cart', '/orders', '/deal','/shop', '/products', '/products/(.*)']; // homepage and product pages are public
+const authPaths = ['/login', '/register' ]; // paths that should redirect to dashboard if already authenticated
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get('auth_token')?.value;

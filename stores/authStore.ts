@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import Cookies from "js-cookie";
 import axios, { AxiosError } from "axios";
+import { User } from "@/types/active_ecommerce_json";
 
 // API client (see step 2 for full setup)
 // Use a local axios instance here to avoid circular imports with `lib/api`
@@ -15,11 +16,7 @@ const axiosClient = axios.create({
   },
 });
 
-interface User {
-  id: number;
-  name: string;
-  email: string;
-}
+
 
 interface AuthState {
   user: User | null;

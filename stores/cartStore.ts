@@ -16,14 +16,14 @@ interface CartState {
     quantity?: number,
   ) => Promise<void>;
   updateCartItem: (
-    userId: number,
-    productId: number,
+    userId: string,
+    productId: string,
     quantity: number,
   ) => Promise<void>;
-  removeFromCart: (userId: number, productId: number) => Promise<void>;
+  removeFromCart: (userId: string, productId: string) => Promise<void>;
   clearCart: () => Promise<void>;
   clearError: () => void;
-  getItemCount: (productId: number) => number;
+  getItemCount: (productId: string) => string;
 }
 
 export const useCartStore = create<CartState>((set, get) => ({
@@ -167,7 +167,7 @@ export const useCartStore = create<CartState>((set, get) => ({
   },
   getItemCount: (productId) => {
     const item = get().cart?.items.find(
-      (item) => Number(item.product.id) === Number(productId),
+      (item) => item.product.id.toString() === productId,
     );
     return item ? item.quantity : 0;
   },

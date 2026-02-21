@@ -1,5 +1,4 @@
 import { Product } from "@/types/active_ecommerce_json";
-import useStore from "@/store";
 import React from "react";
 import { Minus, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";

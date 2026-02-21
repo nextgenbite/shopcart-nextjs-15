@@ -3,7 +3,7 @@
 import { notFound } from "next/navigation";
 
 export interface User {
-  id: number;
+  id: string;
   name: string;
   email: string;
   phone: string;
@@ -23,6 +23,26 @@ export interface Address {
   state: string;
   postal_code: string;
   country: string;
+}
+
+export interface OrderItem {
+  productId: string;
+  quantity: string;
+  price: string;
+  discountPercentage?: string;
+  discountedPrice?: string;
+}
+
+export interface Order {
+  id: string;
+  user: User;
+  orderDate: string;
+  items: OrderItem[];
+  discount?: string;
+  total: string;
+  paymentstatus: "paid" | "pending" | "failed";
+  status: "pending" | "shipped" | "delivered" | "cancelled";
+  createdAt: string;
 }
 
 export interface Category {
@@ -176,5 +196,17 @@ export async function getProductsByQuery(params: {
   console.log("getProductsByQuery response:", res);
   if (!res.ok) throw new Error(`fetchProducts failed: ${res.status}`);
   const data = await res.json();
+  return data; // assuming paginated response
+}
+
+
+export async function fetchOrdersByUser(userId: string): Promise<Order[]> {
+  const res = await fetch(`${BASE_URL}/user/orders/${userId}`, {
+    // SSR with 60s caching
+    next: { revalidate: 60 },
+  });
+  if (!res.ok) throw new Error(`fetchOrdersByUser failed: ${res.status}`);
+  const data = await res.json();
+  console.log("fetchOrdersByUser response:", data);
   return data; // assuming paginated response
 }
