@@ -8,7 +8,7 @@ const NoProductAvailable = ({
   selectedTab,
   className,
 }: {
-  selectedTab?: string;
+  selectedTab?: number;
   className?: string;
 }) => {
   return (

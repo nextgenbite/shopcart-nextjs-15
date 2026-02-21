@@ -6,26 +6,26 @@ import { Flame, StarIcon } from "lucide-react";
 import Title from "./Title";
 import PriceView from "./PriceView";
 import ProductSideMenu from "./ProductSideMenu";
+import { Product } from "@/types/active_ecommerce_json";
 import AddToCartButton from "./AddToCartButton";
 // import AddToCartButton from "./AddToCartButton";
 
-const ProductCard = ({product}: {product: any}) => {
+const ProductCard = ({product}: {product: Product}) => {
   return (
     <div className="text-sm border rounded-md border-darkBlue/20 group bg-white">
       <div className="relative group overflow-hidden bg-shop_light_bg">
-        {product?.images && (
-          <Link href={`/product/${product?.id}`}>
+
+          <Link href={`/product/${product?.slug}`}>
             <Image
-              src={product.images[0]}
+               src={process.env.NEXT_PUBLIC_BACKEND_URL + '/' + product.thumbnail}
               alt="productImage"
               width={500}
               height={500}
-              priority
+              
               className={`w-full h-64 object-contain overflow-hidden transition-transform bg-shop_light_bg duration-500 
               ${product?.stock !== 0 ? "group-hover:scale-105" : "opacity-50"}`}
             />
           </Link>
-        )}
         <ProductSideMenu product={product} />
         {product?.status === "sale" ? (
           <p className="absolute top-2 left-2 z-10 text-xs border border-darkColor/50 px-2 rounded-full group-hover:border-lightGreen hover:text-shop_dark_green hoverEffect">
@@ -45,9 +45,16 @@ const ProductCard = ({product}: {product: any}) => {
         )}
       </div>
       <div className="p-3 flex flex-col gap-2">
-        {product?.categories && (
+        {/* for multiple category api */}
+        {/* {product?.categories && (
           <p className="uppercase line-clamp-1 text-xs font-medium text-lightText">
             {product.categories.map((cat: Object) => cat).join(", ")}
+          </p>
+        )} */}
+        {/* single category */}
+        {product?.category && (
+          <p className="uppercase line-clamp-1 text-xs font-medium text-lightText">
+            {product?.category?.title}
           </p>
         )}
         <Title className="text-sm line-clamp-1">{product?.title}</Title>
@@ -60,7 +67,7 @@ const ProductCard = ({product}: {product: any}) => {
                 fill={index < Math.floor(product?.rating || 0) ? "#93D991" : "#e0e0e0"}
               />
             ))}
-            <p className="font-semibold">{`(${product?.reviews.length || 0})`}</p>
+            <p className="font-semibold">{`(0)`}</p>
           </div>
 
         <div className="flex items-center gap-2.5">
@@ -74,7 +81,7 @@ const ProductCard = ({product}: {product: any}) => {
 
         <PriceView
           price={product?.price}
-          discount={product?.discountPercentage ? product?.price * (product?.discountPercentage / 100) as number : 0}
+          discount={product?.discount}
           className="text-sm"
         />
         <AddToCartButton product={product} className="w-36 rounded-full" />

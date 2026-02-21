@@ -1,132 +1,151 @@
 "use client";
 
-// import {
-//   createCheckoutSession,
-//   Metadata,
-// } from "@/actions/createCheckoutSession";
-// import Container from "@/components/Container";
-
 import Container from "@/components/landing/Container";
 import EmptyCart from "@/components/landing/EmptyCart";
+import NoAccess from "@/components/landing/NoAccess";
 import PriceFormatter from "@/components/landing/PriceFormatter";
 import ProductSideMenu from "@/components/landing/ProductSideMenu";
 import QuantityButtons from "@/components/landing/QuantityButtons";
-import Title from "@/components/landing/Title";
-
 import { Button } from "@/components/ui/button";
-// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
+import { Title } from "@/components/ui/text";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-// import { Address } from "@/sanity.types";
-// import { client } from "@/sanity/lib/client";
-// import { urlFor } from "@/sanity/lib/image";
-import useStore from "@/store";
-// import { useAuth, useUser } from "@clerk/nextjs";
+import { useAuthStore } from "@/stores/authStore";
+import { useCartStore } from "@/stores/cartStore";
 import { ShoppingBag, Trash } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-const CartPage = () => {
-  const {
-    deleteCartProduct,
-    getTotalPrice,
-    getItemCount,
-    getSubTotalPrice,
-    resetCart,
-  } = useStore();
-  const [loading, setLoading] = useState(false);
-  const groupedItems = useStore((state) => state.items);
-  console.log("groupedItems", groupedItems);
-//   const { isSignedIn } = useAuth();
-//   const { user } = useUser();
-//   const [addresses, setAddresses] = useState<Address[] | null>(null);
-//   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
+import {
+  createCheckoutSession,
+  Metadata,
+} from "@/actions/createCheckoutSession";
+import { Address } from "@/types/active_ecommerce_json";
 
-//   const fetchAddresses = async () => {
-//     setLoading(true);
-//     try {
-//       const query = `*[_type=="address"] | order(publishedAt desc)`;
-//       const data = await client.fetch(query);
-//       setAddresses(data);
-//       const defaultAddress = data.find((addr: Address) => addr.default);
-//       if (defaultAddress) {
-//         setSelectedAddress(defaultAddress);
-//       } else if (data.length > 0) {
-//         setSelectedAddress(data[0]); // Optional: select first address if no default
-//       }
-//     } catch (error) {
-//       console.log("Addresses fetching error:", error);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-//   useEffect(() => {
-//     fetchAddresses();
-//   }, []);
+const CartPage = () => {
+  const { cart, clearCart, getItemCount, removeFromCart } = useCartStore();
+
+  const [loading, setLoading] = useState(false);
+  // const groupedItems = useStore((state) => state.getGroupedItems());
+  const { token, user } = useAuthStore();
+  const [addresses, setAddresses] = useState<Address[] | null>(null);
+  const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
+
+  const fetchAddresses = async () => {
+    setLoading(true);
+    // try {
+    //   const query = `*[_type=="address"] | order(publishedAt desc)`;
+    //   const data = await client.fetch(query);
+    //   setAddresses(data);
+    //   const defaultAddress = data.find((addr: Address) => addr.default);
+    //   if (defaultAddress) {
+    //     setSelectedAddress(defaultAddress);
+    //   } else if (data.length > 0) {
+    //     setSelectedAddress(data[0]); // Optional: select first address if no default
+    //   }
+    // } catch (error) {
+    //   console.log("Addresses fetching error:", error);
+    // } finally {
+    //   setLoading(false);
+    // }
+  };
+  useEffect(() => {
+    // fetchAddresses();
+  }, []);
   const handleResetCart = () => {
     const confirmed = window.confirm(
-      "Are you sure you want to reset your cart?"
+      "Are you sure you want to reset your cart?",
     );
     if (confirmed) {
-      resetCart();
+      clearCart();
       toast.success("Cart reset successfully!");
     }
   };
 
-//   const handleCheckout = async () => {
-//     setLoading(true);
-//     try {
-//       const metadata: Metadata = {
-//         orderNumber: crypto.randomUUID(),
-//         customerName: user?.fullName ?? "Unknown",
-//         customerEmail: user?.emailAddresses[0]?.emailAddress ?? "Unknown",
-//         clerkUserId: user?.id,
-//         address: selectedAddress,
-//       };
-//       const checkoutUrl = await createCheckoutSession(groupedItems, metadata);
-//       if (checkoutUrl) {
-//         window.location.href = checkoutUrl;
-//       }
-//     } catch (error) {
-//       console.error("Error creating checkout session:", error);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
+  const handleCheckout = async () => {
+    setLoading(true);
+    try {
+      const metadata: Metadata = {
+        orderNumber: `ORDER-${Date.now()}`,
+        customerName: user?.name ?? "Unknown",
+        customerEmail: user?.email ?? "Unknown",
+        userId: user?.id.toString() ?? "",
+        address: selectedAddress,
+      };
+      const checkoutUrl = await createCheckoutSession(cart?.items ?? [], metadata);
+      if (checkoutUrl) {
+        window.location.href = checkoutUrl;
+      }
+    } catch (error) {
+      console.error("Error creating checkout session:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="bg-gray-50 pb-52 md:pb-10">
- <Container>
-          {groupedItems?.length ? (
-         <>
-               <div className="flex items-center gap-2 py-5">
+      {token ? (
+        <Container>
+          {cart && cart?.item_count > 0 ? (
+            <>
+              <div className="flex items-center gap-2 py-5">
                 <ShoppingBag className="text-darkColor" />
                 <Title>Shopping Cart</Title>
               </div>
-                     <div className="grid lg:grid-cols-3 md:gap-8">
+              <div className="grid lg:grid-cols-3 md:gap-8">
                 <div className="lg:col-span-2 rounded-lg">
                   <div className="border bg-white rounded-md">
-                    {groupedItems?.map((item) => {
-                      const itemCount = getItemCount(item.id);
+                    {cart?.items?.map(({ product }) => {
+                      const itemCount = getItemCount(product?.id);
                       return (
                         <div
-                          key={item.id}
+                          key={product?.id}
                           className="border-b p-2.5 last:border-b-0 flex items-center justify-between gap-5"
                         >
                           <div className="flex flex-1 items-start gap-2 h-36 md:h-44">
+                            {product?.thumbnail && (
+                              <Link
+                                href={`/product/${product?.slug}`}
+                                className="border p-0.5 md:p-1 mr-2 rounded-md
+                                 overflow-hidden group"
+                              >
+                                <Image
+                                  src={
+                                    process.env.NEXT_PUBLIC_BACKEND_URL +
+                                    "/" +
+                                    product.thumbnail
+                                  }
+                                  alt="productImage"
+                                  width={500}
+                                  height={500}
+                                  loading="lazy"
+                                  className="w-32 md:w-40 h-32 md:h-40 object-cover group-hover:scale-105 hoverEffect"
+                                />
+                              </Link>
+                            )}
                             <div className="h-full flex flex-1 flex-col justify-between py-1">
                               <div className="flex flex-col gap-0.5 md:gap-1.5">
                                 <h2 className="text-base font-semibold line-clamp-1">
-                                  {item.title}
+                                  {product?.title}
                                 </h2>
-                                <p className="text-sm text-gray-600">
-                                  Quantity: <span className="font-semibold">{item.quantity}</span>
+                                <p className="text-sm capitalize">
+                                  Variant:{" "}
+                                  <span className="font-semibold">
+                                    {product?.variant}
+                                  </span>
+                                </p>
+                                <p className="text-sm capitalize">
+                                  Status:{" "}
+                                  <span className="font-semibold">
+                                    {product?.status}
+                                  </span>
                                 </p>
                               </div>
                               <div className="flex items-center gap-2">
@@ -134,7 +153,7 @@ const CartPage = () => {
                                   <Tooltip>
                                     <TooltipTrigger>
                                       <ProductSideMenu
-                                        product={item as any}
+                                        product={product}
                                         className="relative top-0 right-0"
                                       />
                                     </TooltipTrigger>
@@ -146,8 +165,15 @@ const CartPage = () => {
                                     <TooltipTrigger>
                                       <Trash
                                         onClick={() => {
-                                          deleteCartProduct(item.id);
-                                          toast.success("Product deleted successfully!");
+                                          if (user) {
+                                            removeFromCart(
+                                              user?.id,
+                                              product?.id,
+                                            );
+                                            toast.success(
+                                              "Product deleted successfully!",
+                                            );
+                                          }
                                         }}
                                         className="w-4 h-4 md:w-5 md:h-5 mr-1 text-gray-500 hover:text-red-600 hoverEffect"
                                       />
@@ -162,10 +188,10 @@ const CartPage = () => {
                           </div>
                           <div className="flex flex-col items-start justify-between h-36 md:h-44 p-0.5 md:p-1">
                             <PriceFormatter
-                              amount={(item.price as number) * itemCount}
+                              amount={(product?.price as number) * itemCount}
                               className="font-bold text-lg"
                             />
-                            <QuantityButtons product={item as any} />
+                            <QuantityButtons product={product} />
                           </div>
                         </div>
                       );
@@ -188,19 +214,19 @@ const CartPage = () => {
                       <div className="space-y-4">
                         <div className="flex items-center justify-between">
                           <span>SubTotal</span>
-                          <PriceFormatter amount={getSubTotalPrice()} />
+                          <PriceFormatter amount={cart.subtotal} />
                         </div>
                         <div className="flex items-center justify-between">
                           <span>Discount</span>
                           <PriceFormatter
-                            amount={getSubTotalPrice() - getTotalPrice()}
+                            amount={cart.subtotal - cart.total}
                           />
                         </div>
                         <Separator />
                         <div className="flex items-center justify-between font-semibold text-lg">
                           <span>Total</span>
                           <PriceFormatter
-                            amount={getTotalPrice()}
+                            amount={cart.total}
                             className="text-lg font-bold text-black"
                           />
                         </div>
@@ -208,7 +234,7 @@ const CartPage = () => {
                           className="w-full rounded-full font-semibold tracking-wide hoverEffect"
                           size="lg"
                           disabled={loading}
-                         
+                          onClick={handleCheckout}
                         >
                           {loading ? "Please wait..." : "Proceed to Checkout"}
                         </Button>
@@ -266,19 +292,19 @@ const CartPage = () => {
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
                         <span>SubTotal</span>
-                        <PriceFormatter amount={getSubTotalPrice()} />
+                        <PriceFormatter amount={cart.subtotal} />
                       </div>
                       <div className="flex items-center justify-between">
                         <span>Discount</span>
                         <PriceFormatter
-                          amount={getSubTotalPrice() - getTotalPrice()}
+                          amount={cart.subtotal - cart.total}
                         />
                       </div>
                       <Separator />
                       <div className="flex items-center justify-between font-semibold text-lg">
                         <span>Total</span>
                         <PriceFormatter
-                          amount={getTotalPrice()}
+                          amount={cart.total}
                           className="text-lg font-bold text-black"
                         />
                       </div>
@@ -286,7 +312,7 @@ const CartPage = () => {
                         className="w-full rounded-full font-semibold tracking-wide hoverEffect"
                         size="lg"
                         disabled={loading}
-                        // 
+                        onClick={handleCheckout}
                       >
                         {loading ? "Please wait..." : "Proceed to Checkout"}
                       </Button>
@@ -294,13 +320,14 @@ const CartPage = () => {
                   </div>
                 </div>
               </div>
-         </>
+            </>
           ) : (
-<EmptyCart />
-
-         
+            <EmptyCart />
           )}
         </Container>
+      ) : (
+        <NoAccess />
+      )}
     </div>
   );
 };

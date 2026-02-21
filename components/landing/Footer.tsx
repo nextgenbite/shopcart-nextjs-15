@@ -1,3 +1,4 @@
+'use client';
 import React from "react";
 import FooterTop from "./FooterTop";
 import { categoriesData, quickLinksData } from "@/constants/data";

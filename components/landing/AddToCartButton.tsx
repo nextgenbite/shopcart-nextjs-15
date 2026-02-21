@@ -1,12 +1,14 @@
 "use client";
-import { Product } from "@/types//dummyjson";
-import { Button } from "@/components/ui/button";
+import { Product } from "@/types/active_ecommerce_json";
+import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { ShoppingBag } from "lucide-react";
-import useStore from "@/store";
 import toast from "react-hot-toast";
 import PriceFormatter from "./PriceFormatter";
 import QuantityButtons from "./QuantityButtons";
+import { useCartStore } from "@/stores/cartStore";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/stores/authStore";
 
 interface Props {
   product: Product;
@@ -14,23 +16,31 @@ interface Props {
 }
 
 const AddToCartButton = ({ product, className }: Props) => {
-  const { addItem, getItemCount } = useStore();
-  const itemCount = getItemCount(product?.id);
-  const isOutOfStock = product?.stock === 0;
+  const { addToCart, getItemCount } = useCartStore();
+  const router = useRouter();
+  const { user } = useAuthStore();
 
-  const handleAddToCart = () => {
-    if ((product?.stock as number) > itemCount) {
-      addItem(product);
-      toast.success(
-        `${product?.title?.substring(0, 12)}... added successfully!`
-      );
-    } else {
-      toast.error("Can not add more than available stock");
+  const itemCount = getItemCount(product?.id);
+  const isOutOfStock = product?.stock === 0 || itemCount >= (product?.stock as number);
+
+  const handleAddToCart = async () => {
+    if (!user) return router.push("/login");
+    try {
+      if ((product?.stock as number) > itemCount) {
+        await addToCart(user.id, product?.id, 1);
+        toast.success(
+          `${product?.title?.substring(0, 12)}... added successfully!`,
+        );
+      } else {
+        toast.error("Can not add more than available stock");
+      }
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to add item to cart");
     }
   };
   return (
     <div className="w-full h-12 flex items-center">
-      {itemCount ? (
+      {itemCount > 0 ? (
         <div className="text-sm w-full">
           <div className="flex items-center justify-between">
             <span className="text-xs text-darkColor/80">Quantity</span>
@@ -46,10 +56,10 @@ const AddToCartButton = ({ product, className }: Props) => {
       ) : (
         <Button
           onClick={handleAddToCart}
-          disabled={isOutOfStock}
+          disabled={isOutOfStock }
           className={cn(
             "w-full bg-shop_dark_green/80 text-lightBg shadow-none border border-shop_dark_green/80 font-semibold tracking-wide text-white hover:bg-shop_dark_green hover:border-shop_dark_green hoverEffect",
-            className
+            className,
           )}
         >
           <ShoppingBag /> {isOutOfStock ? "Out of Stock" : "Add to Cart"}
